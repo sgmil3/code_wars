@@ -3,7 +3,7 @@ Name: Escape the maze
 Link: https://www.codewars.com/kata/5877027d885d4f6144000404
 Level: 4kyu
 Desc.: Escape from a 2D maze by provided  rotation and forward directions in sequence
-Finished: No
+Finished: Yes
 """
 
 import heapq
@@ -39,6 +39,7 @@ class AStar(object):
         self.ends = self.find_all_exits(maze)
         self.init_grid(maze)
         self.start = self.get_cell(*self.start)
+        self.current = self.start
 
     def __repr__(self):
         # print indexes
@@ -46,7 +47,16 @@ class AStar(object):
         for i, row in enumerate(self.cells):
             print(
                 f"{i}",
-                "".join([str(cell) if cell != self.start else "D" for cell in row]),
+                "".join(
+                    [
+                        (
+                            str(cell)
+                            if cell != self.current
+                            else [">", "<", "^", "v"][self.orientation]
+                        )
+                        for cell in row
+                    ]
+                ),
             )
         return ""
 
@@ -137,70 +147,71 @@ class AStar(object):
             return []
 
     def convert_to_moves(self, path: list[tuple[int, int]]) -> list[str]:
+        if path == []:
+            return []
         # reconstruct moves by following path in reverse,
         # start off by getting which way the exit is (edge of maze)
         moves = []
-        path = [(self.start.x, self.start.y)] + list(path)[::-1]
+        path = (
+            [(self.start.x, self.start.y)]
+            + list(path)[::-1]
+            + [(self.end.x, self.end.y)]
+        )
 
         for i, (x, y) in enumerate(path[1:]):
             if path[i][0] == x:
                 if path[i][1] < y:
-                    # if moving in the same orentation, move forward, otherwise turn
                     if self.orientation == 0:
                         moves.append("F")
                     elif self.orientation == 1:
-                        moves.append("RF")
-                        self.orientation = 2
-                    elif self.orientation == 2:
                         moves.append("BF")
-                        self.orientation = 3
+                    elif self.orientation == 2:
+                        moves.append("RF")
                     else:
                         moves.append("LF")
-                        self.orientation = 0
+
+                    self.orientation = 0
 
                 else:
                     if self.orientation == 0:
                         moves.append("BF")
-                        self.orientation = 1
 
                     elif self.orientation == 1:
-                        moves.append("LF")
-                        self.orientation = 3
+                        moves.append("F")
 
                     elif self.orientation == 2:
-                        moves.append("RF")
-                        self.orientation = 0
+                        moves.append("LF")
 
                     else:
-                        moves.append("F")
+                        moves.append("RF")
+
+                    self.orientation = 1
             else:
-
-                [">", "<", "^", "v"]
-
-                if path[i][0] < x:
+                if path[i][0] > x:
                     if self.orientation == 0:
-                        moves.append("RF")
-                        self.orientation = 3
-                    elif self.orientation == 1:
-                        moves.append("BF")
-                        self.orientation = 0
-                    elif self.orientation == 2:
                         moves.append("LF")
-                        self.orientation = 2
-                    else:
+                    elif self.orientation == 1:
+                        moves.append("RF")
+                    elif self.orientation == 2:
                         moves.append("F")
+                    else:
+                        moves.append("BF")
+
+                    self.orientation = 2
+
                 else:
                     if self.orientation == 0:
-                        moves.append("LF")
-                        self.orientation = 3
+                        moves.append("RF")
                     elif self.orientation == 1:
-                        moves.append("F")
+                        moves.append("LF")
                     elif self.orientation == 2:
                         moves.append("BF")
-                        self.orientation = 3
                     else:
-                        moves.append("RF")
-                        self.orientation = 2
+                        moves.append("F")
+
+                    self.orientation = 3
+
+            self.current = self.get_cell(x, y)
 
         moves.append("F")
 
@@ -208,8 +219,8 @@ class AStar(object):
 
 
 def escape(maze):
+    print(maze)
     Maze = AStar(maze)
-    print(Maze)
     print("Start: ", (Maze.start.x, Maze.start.y))
     print("Solving:")
     return Maze.convert_to_moves(Maze.solve())
@@ -222,9 +233,18 @@ if __name__ == "__main__":
     your_valid_mazes = []
     your_invalid_mazes = []
 
-    basic_mazes.append(["# #########", "#        >#", "###########"])
-    basic_mazes.append(["# #########", "#    ^    #", "######### #"])
-    basic_mazes.append(["####### #", "#>#   # #", "#   #   #", "#########"])
+    basic_mazes.append(
+        [
+            "##########",
+            "#        #",
+            "#  ##### #",
+            "#  #   # #",
+            "#  #^# # #",
+            "#  ### # #",
+            "#      # #",
+            "######## #",
+        ]
+    )
 
     for i, maze in enumerate(basic_mazes):
         print()

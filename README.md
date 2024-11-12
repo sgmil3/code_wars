@@ -26,7 +26,7 @@ This is a list of all the Kata solutions in the repository.
 	- **Description**: Organize a round-robin tournament schedule for a given number of teams
 	- **File**: [kata/round_robin_scheduler.py](kata/round_robin_scheduler.py)
 
-5. **Escape the maze** [:globe_with_meridians:](https://www.codewars.com/kata/5877027d885d4f6144000404) (in progress)
+5. **Escape the maze** [:globe_with_meridians:](https://www.codewars.com/kata/5877027d885d4f6144000404) 
 	- **Kata Level**: 4kyu
 	- **Description**: Escape from a 2D maze by provided  rotation and forward directions in sequence
 	- **File**: [kata/maze.py](kata/maze.py)
